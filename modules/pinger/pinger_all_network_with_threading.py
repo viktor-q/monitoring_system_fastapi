@@ -1,8 +1,9 @@
+import json
 import os
 import socket
 from threading import Thread
+
 import getmac
-import json
 
 with open("modules/pinger/vendors.json", "r") as j:
     vend_base = json.load(j)
@@ -44,6 +45,7 @@ def net_scanner():
         task.join()
 
     return ip_and_name
+
 
 # for row in net_scanner().items():
 #    print(row)

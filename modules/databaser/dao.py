@@ -1,10 +1,10 @@
-from prettytable import PrettyTable
+# from prettytable import PrettyTable
 from sqlalchemy import select, update
 
-from modules.databaser import vendors_base
+# from modules.databaser import vendors_base
 from modules.databaser.db import comments, engine, hardware
 from modules.pinger.pinger import pinger
-from modules.pinger.pinger_all_network_mthreading import net_scanner
+from modules.pinger.pinger_all_network_with_threading import net_scanner
 
 
 # pattern class
@@ -93,21 +93,21 @@ class DAO:
 
         return result_for_html
 
-    def scan_network(self):
-        scan_table = PrettyTable()
-        scan_table.field_names = ["IP", "Net name", "MAC", "Vendor"]
-        scanned_dict = sorted(net_scanner().items())
-        #        print(net_scanner())
-        #        print(scanned_dict)
-        for row in scanned_dict:
-            len_in_table = []
-            len_in_table.append(row[0])
-            len_in_table.append(row[1][0])
-            len_in_table.append(row[1][1])
-            len_in_table.append(vendors_base.vendors_names(str(row[1][1])))
-            #            print(len_in_table)
-            scan_table.add_row(len_in_table)
-
-        result_for_html = scan_table.get_html_string(format=True)
-
-        return result_for_html
+    # def scan_network(self):
+    #     scan_table = PrettyTable()
+    #     scan_table.field_names = ["IP", "Net name", "MAC", "Vendor"]
+    #     scanned_dict = sorted(net_scanner().items())
+    #     #        print(net_scanner())
+    #     #        print(scanned_dict)
+    #     for row in scanned_dict:
+    #         len_in_table = []
+    #         len_in_table.append(row[0])
+    #         len_in_table.append(row[1][0])
+    #         len_in_table.append(row[1][1])
+    #         len_in_table.append(vendors_base.vendors_names(str(row[1][1])))
+    #         #            print(len_in_table)
+    #         scan_table.add_row(len_in_table)
+    #
+    #     result_for_html = scan_table.get_html_string(format=True)
+    #
+    #     return result_for_html
