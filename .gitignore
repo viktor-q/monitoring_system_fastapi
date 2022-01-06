@@ -1,6 +1,4 @@
 /modules/databaser/hardware.db
 /hardware.db
-/pyproject.toml
-/.isort.cfg
 /venv
 /.idea

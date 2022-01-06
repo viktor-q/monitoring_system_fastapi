@@ -12,6 +12,7 @@ app = FastAPI()
 async def start_page():
     return f"mainpage"
 
+
 # example_response_for_netscaner = {
 #     "192.168.1.1": {
 #         "network_name": "_gateway",
@@ -26,7 +27,6 @@ async def start_page():
 # }
 
 
-
 @app.get("/net-scaner")
 async def net_scaner():
     return pinger_all_network_with_threading.net_scanner()
@@ -39,12 +39,13 @@ class PushToDb(BaseModel):
     hard_place: str
     hard_comment: str
 
+
 class PushToDbResponse(BaseModel):
     hard_name: str
     hard_id: str
 
 
-@app.post("/push-in-base",  response_model=PushToDbResponse)
+@app.post("/push-in-base", response_model=PushToDbResponse)
 async def create_hardware_unit(pushed_json: PushToDb):
 
     new_id = dao.DAO().create_hardware_unit_with_comment(

@@ -24,16 +24,24 @@ def net_scanner():
             if ip_mac is not None:
                 mac_id = ip_mac.replace(":", "")[0:6]
                 name_vendor = vend_base.get(mac_id)
-            if ip_mac is None:
+            else:
                 name_vendor = None
 
             try:
                 net_name = socket.gethostbyaddr(ipaddr)
-#                ip_and_name[ipaddr] = [net_name[0], ip_mac, name_vendor]
-                ip_and_name[ipaddr] = {'network_name': net_name[0], 'mac-addr': ip_mac, 'vendor': name_vendor}
+                #                ip_and_name[ipaddr] = [net_name[0], ip_mac, name_vendor]
+                ip_and_name[ipaddr] = {
+                    "network_name": net_name[0],
+                    "mac-addr": ip_mac,
+                    "vendor": name_vendor,
+                }
             except socket.herror:
-#                ip_and_name[ipaddr] = ["untitled", ip_mac, name_vendor]
-                ip_and_name[ipaddr] = {'network_name': 'untitled', 'mac-addr': ip_mac, 'vendor': name_vendor}
+                #                ip_and_name[ipaddr] = ["untitled", ip_mac, name_vendor]
+                ip_and_name[ipaddr] = {
+                    "network_name": "untitled",
+                    "mac-addr": ip_mac,
+                    "vendor": name_vendor,
+                }
 
     tasks = []
     for i in range(256):
