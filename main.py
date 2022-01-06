@@ -12,6 +12,20 @@ app = FastAPI()
 async def start_page():
     return f"mainpage"
 
+# example_response_for_netscaner = {
+#     "192.168.1.1": {
+#         "network_name": "_gateway",
+#         "mac-addr": "20:4e:7f:98:28:42",
+#         "vendor": "Netgear"
+#     },
+#     "192.168.1.5": {
+#         "network_name": "Hobot-ubuntu-worker",
+#         "mac-addr": "null",
+#         "vendor": "null"
+#     }
+# }
+
+
 
 @app.get("/net-scaner")
 async def net_scaner():
@@ -25,11 +39,12 @@ class PushToDb(BaseModel):
     hard_place: str
     hard_comment: str
 
-    # class Config:
-    #     orm_mode = True
+class PushToDbResponse(BaseModel):
+    hard_name: str
+    hard_id: str
 
 
-@app.post("/push-in-base")
+@app.post("/push-in-base",  response_model=PushToDbResponse)
 async def create_hardware_unit(pushed_json: PushToDb):
 
     new_id = dao.DAO().create_hardware_unit_with_comment(
@@ -40,7 +55,7 @@ async def create_hardware_unit(pushed_json: PushToDb):
         pushed_json.hard_comment,
     )
 
-    return f"Устройство `{pushed_json.hard_name}` c id '{new_id}' теперь в базе"
+    return PushToDbResponse(hard_name=pushed_json.hard_name, hard_id=new_id)
 
 
 # @app.post("/push-in-base")
