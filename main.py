@@ -21,34 +21,36 @@ class ScanNetworkParam(BaseModel):
     vendor: Optional[str] = None
 
 
-# class ResultAllNetScan(BaseModel):
-#     item: Dict[str, ScanNetworkParam] = Field(..., description="Dictonary")
-#
-#     class Config:
-#         schema_extra = {
-#             "example":
-#                 {
-#                     "192.168.1.1": {
-#                         "network_name": "_gateway",
-#                         "mac_addr": "20:4e:7f:98:28:42",
-#                         "vendor": "Netgear",
-#                     },
-#                     "192.168.1.5": {
-#                         "network_name": "Hobot-ubuntu-worker",
-#                         "mac_addr": "null",
-#                         "vendor": "null",
-#                     },
-#                 }
-#             }
+class ResultAllNetScan(BaseModel):
+    items: Dict[str, ScanNetworkParam] = Field(..., description="Dictonary")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "items": {
+                    "192.168.1.1": {
+                        "network_name": "_gateway",
+                        "mac_addr": "20:4e:7f:98:28:42",
+                        "vendor": "Netgear",
+                    },
+                    "192.168.1.5": {
+                        "network_name": "Hobot-ubuntu-worker",
+                        "mac_addr": "null",
+                        "vendor": "null",
+                    },
+                }
+            }
+        }
 
 
 @app.get(
     "/net-scaner",
-    response_model=Dict[str, ScanNetworkParam],
+    response_model=ResultAllNetScan,
     response_description="All keys is IPv4",
 )
 async def net_scaner():
-    return pinger_all_network_with_threading.net_scanner()
+    result = pinger_all_network_with_threading.net_scanner()
+    return {"items": result}
 
 
 class PushToDb(BaseModel):
