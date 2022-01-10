@@ -1,6 +1,8 @@
+from typing import Dict, Optional
+
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from modules.databaser import dao
 from modules.pinger import pinger_all_network_with_threading
@@ -13,21 +15,38 @@ async def start_page():
     return f"mainpage"
 
 
-# example_response_for_netscaner = {
-#     "192.168.1.1": {
-#         "network_name": "_gateway",
-#         "mac-addr": "20:4e:7f:98:28:42",
-#         "vendor": "Netgear"
-#     },
-#     "192.168.1.5": {
-#         "network_name": "Hobot-ubuntu-worker",
-#         "mac-addr": "null",
-#         "vendor": "null"
-#     }
-# }
+class ScanNetworkParam(BaseModel):
+    network_name: Optional[str] = None
+    mac_addr: Optional[str] = None
+    vendor: Optional[str] = None
 
 
-@app.get("/net-scaner")
+# class ResultAllNetScan(BaseModel):
+#     item: Dict[str, ScanNetworkParam] = Field(..., description="Dictonary")
+#
+#     class Config:
+#         schema_extra = {
+#             "example":
+#                 {
+#                     "192.168.1.1": {
+#                         "network_name": "_gateway",
+#                         "mac_addr": "20:4e:7f:98:28:42",
+#                         "vendor": "Netgear",
+#                     },
+#                     "192.168.1.5": {
+#                         "network_name": "Hobot-ubuntu-worker",
+#                         "mac_addr": "null",
+#                         "vendor": "null",
+#                     },
+#                 }
+#             }
+
+
+@app.get(
+    "/net-scaner",
+    response_model=Dict[str, ScanNetworkParam],
+    response_description="All keys is IPv4",
+)
 async def net_scaner():
     return pinger_all_network_with_threading.net_scanner()
 
@@ -39,10 +58,24 @@ class PushToDb(BaseModel):
     hard_place: str
     hard_comment: str
 
+    class Config:
+        schema_extra = {
+            "example": {
+                "hard_type": "1",
+                "hard_name": "Cisco",
+                "hard_ip": "192.168.0.1",
+                "hard_place": "27",
+                "hard_comment": "This is comment",
+            }
+        }
+
 
 class PushToDbResponse(BaseModel):
     hard_name: str
     hard_id: str
+
+    class Config:
+        schema_extra = {"example": {"hard_name": "Cisco", "hard_id": "1"}}
 
 
 @app.post("/push-in-base", response_model=PushToDbResponse)

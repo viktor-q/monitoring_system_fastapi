@@ -32,14 +32,14 @@ def net_scanner():
                 #                ip_and_name[ipaddr] = [net_name[0], ip_mac, name_vendor]
                 ip_and_name[ipaddr] = {
                     "network_name": net_name[0],
-                    "mac-addr": ip_mac,
+                    "mac_addr": ip_mac,
                     "vendor": name_vendor,
                 }
             except socket.herror:
                 #                ip_and_name[ipaddr] = ["untitled", ip_mac, name_vendor]
                 ip_and_name[ipaddr] = {
                     "network_name": "untitled",
-                    "mac-addr": ip_mac,
+                    "mac_addr": ip_mac,
                     "vendor": name_vendor,
                 }
 
