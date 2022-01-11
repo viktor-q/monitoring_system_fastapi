@@ -194,12 +194,14 @@ class ReturnHwWithAnyItems(BaseModel):
         schema_extra = {
             "example": {
                 "items": {
-                    "id_in_db": "1",
-                    "type": "2",
-                    "name": "Cisco",
-                    "ip": "192.168.1.0",
-                    "locate": "27",
-                    "comment": "This is comment",
+                    "1": {
+                        "id_in_db": "1",
+                        "type": "2",
+                        "name": "Cisco",
+                        "ip": "192.168.1.0",
+                        "locate": "27",
+                        "comment": "This is comment",
+                    }
                 }
             }
         }
