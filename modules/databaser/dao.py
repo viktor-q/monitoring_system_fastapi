@@ -59,7 +59,7 @@ class DAO:
             update(comments).where(comments.c.hardware_id == id_for_upd).values(comment=newcomment)
         )
         conn.execute(query)
-        return newcomment
+        return {"id_for_update": id_for_upd, "new_comment": newcomment}
 
     def read_hardware_with_param(self, type_hardware, locate):
         conn = engine.connect()
@@ -82,16 +82,21 @@ class DAO:
         for row in exec:
             list_with_param.append(row)
 
-        #        print(list_with_param)
-
-        results_table = PrettyTable()
-        results_table.field_names = ["Row in db", "Type", "Name", "IP", "Locate", "Comment"]
+        all_dictonary = {}
+        one_unit_list = ["id_in_db", "type", "name", "ip", "locate", "comment"]
         for row in list_with_param:
-            results_table.add_row(row)
+            id_in_db = row[0]
+            one_unit_dict = dict(zip(one_unit_list, row))
+            all_dictonary[id_in_db] = one_unit_dict
 
-        result_for_html = results_table.get_html_string(format=True)
+        # results_table = PrettyTable()
+        # results_table.field_names = ["Row in db", "Type", "Name", "IP", "Locate", "Comment"]
+        # for row in list_with_param:
+        #     results_table.add_row(row)
+        #
+        # result_for_html = results_table.get_html_string(format=True)
 
-        return result_for_html
+        return all_dictonary
 
     # def scan_network(self):
     #     scan_table = PrettyTable()

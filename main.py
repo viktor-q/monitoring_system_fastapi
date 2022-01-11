@@ -104,20 +104,118 @@ async def create_hardware_unit(pushed_json: PushToDb):
 #         return f"Устройство `{hard_name}` c id '{new_id}' теперь в базе"
 
 
-@app.post("/read-from-base-id")
-async def read_from_base_with_id(input_id):
-    result = dao.DAO().read_hardware_with_comment(input_id)
-    return f"{result}"
+class ReadFromBaseWithId(BaseModel):
+    input_id: int
 
 
-# @app.get("/users/{user_id}")
-# async def user(user_id: str):
-#     return {"user_id": user_id}
-#
-# userlist = ["Spike", "Jet", "Ed", "Faye", "Ein"]
-# @app.get("/userlist")
-# async def userlist_(start: int = 0, limit: int = 10):
-#     return userlist[start:start+limit]
+class ReturnFromBaseWithId(BaseModel):
+    id: int
+    hard_type: int
+    hard_name: str
+    hard_ip: str
+    hard_place: int
+    comment: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": "1",
+                "hard_type": "2",
+                "hard_name": "Cisco",
+                "hard_ip": "192.168.0.1",
+                "hard_place": "27",
+                "hard_comment": "This is comment",
+            }
+        }
+
+
+@app.post("/read-from-base-id", response_model=ReturnFromBaseWithId)
+async def read_from_base_with_id(pushed_json: ReadFromBaseWithId):
+    result = dao.DAO().read_hardware_with_comment(pushed_json.input_id)
+    return result
+
+
+class PingOneIp(BaseModel):
+    input_id: int
+
+
+class ResultPingOneIp(BaseModel):
+    result: str
+
+    class Config:
+        schema_extra = {"example": {"result": "Network NOT ACTIVE or Error"}}
+
+
+@app.get("/ping-one-ip", response_model=ResultPingOneIp)
+async def ping_one_ip(pushed_json: PingOneIp):
+    result_one_ping = dao.DAO().pinger_for_page(pushed_json.input_id)
+    return {"result": result_one_ping}
+
+
+class InputNewComment(BaseModel):
+    id_for_update: int
+    new_comment: str
+
+
+class ResponseNewComment(BaseModel):
+    id_for_update: int
+    new_comment: str
+
+    class Config:
+        schema_extra = {"example": {"id_for_update": "1", "new_comment": "This is new comment"}}
+
+
+@app.post("/update-comment", response_model=ResponseNewComment)
+async def update_comment(pushed_json: InputNewComment):
+    result_replace_comment = dao.DAO().update_the_comment(
+        pushed_json.id_for_update, pushed_json.new_comment
+    )
+    return result_replace_comment
+
+
+class ReadHwWithAnyParam(BaseModel):
+    type_hw: int
+    locate: int
+
+
+class ReturnHwWithAnyParam(BaseModel):
+    id_in_db: str
+    type: str
+    name: str
+    ip: str
+    locate: str
+    comment: str
+
+
+class ReturnHwWithAnyItems(BaseModel):
+    items: Dict[str, ReturnHwWithAnyParam] = Field(..., description="Dictonary")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "items": {
+                    "id_in_db": "1",
+                    "type": "2",
+                    "name": "Cisco",
+                    "ip": "192.168.1.0",
+                    "locate": "27",
+                    "comment": "This is comment",
+                }
+            }
+        }
+
+
+@app.get(
+    "/read-hardware-from-base-with-any-parameters",
+    response_model=ReturnHwWithAnyItems,
+    description="If input type or locate = [0], then readind all type or location, all items is number row in DB",
+)
+async def read_hardware_with_any_param(pushed_json: ReadHwWithAnyParam):
+    result_read_hw_with_any_param = dao.DAO().read_hardware_with_param(
+        pushed_json.type_hw, pushed_json.locate
+    )
+    return {"items": result_read_hw_with_any_param}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=5000)
