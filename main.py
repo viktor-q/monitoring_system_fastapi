@@ -1,11 +1,15 @@
 from typing import Dict, Optional
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
+from fastapi_jwt_auth import AuthJWT
+from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel, Field
 
 from modules.databaser import dao
 from modules.pinger import pinger_all_network_with_threading
+from modules.security import security
 
 app = FastAPI()
 
@@ -48,7 +52,9 @@ class ResultAllNetScan(BaseModel):
     response_model=ResultAllNetScan,
     response_description="All keys is IPv4",
 )
-async def net_scaner():
+async def net_scaner(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+
     result = pinger_all_network_with_threading.net_scanner()
     return {"items": result}
 
@@ -82,7 +88,6 @@ class PushToDbResponse(BaseModel):
 
 @app.post("/push-in-base", response_model=PushToDbResponse)
 async def create_hardware_unit(pushed_json: PushToDb):
-
     new_id = dao.DAO().create_hardware_unit_with_comment(
         pushed_json.hard_type,
         pushed_json.hard_name,
@@ -217,6 +222,44 @@ async def read_hardware_with_any_param(pushed_json: ReadHwWithAnyParam):
         pushed_json.type_hw, pushed_json.locate
     )
     return {"items": result_read_hw_with_any_param}
+
+
+class User(BaseModel):
+    login: str
+    password: str
+
+
+class Settings(BaseModel):
+    authjwt_secret_key: str = "secret"
+
+
+@AuthJWT.load_config
+def get_config():
+    return Settings()
+
+
+@app.get("/login-user")
+async def login_user(data: User, Authorize: AuthJWT = Depends()):
+    new_class = security.CustomSecurity()
+    response_check_pass_in_db = new_class.check_user(data.login, data.password)
+    if response_check_pass_in_db["status_pass"] == "BAD":
+        raise HTTPException(status_code=401, detail="Bad username or password")
+
+    access_token = Authorize.create_access_token(subject=data.login)
+    return {"access_token": access_token}
+
+
+@app.get("/create-user")
+async def create_user(data: User):
+    new_class = security.CustomSecurity()
+    new_user_id = new_class.registration_new_user(data.login, data.password)
+    return new_user_id
+
+
+# exception handler for authjwt
+@app.exception_handler(AuthJWTException)
+def authjwt_exception_handler(request: Request, exc: AuthJWTException):
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
 if __name__ == "__main__":
