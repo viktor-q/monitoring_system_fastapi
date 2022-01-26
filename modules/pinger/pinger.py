@@ -1,7 +1,7 @@
 import os
 
 
-def pinger(hostname):
+def pinger(hostname: str) -> str:
     #    hostname = "192.168.1.4"
     response = os.system("ping -c 1 " + hostname)
     if response == 0:

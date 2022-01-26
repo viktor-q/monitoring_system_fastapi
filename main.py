@@ -52,7 +52,7 @@ class ResultAllNetScan(BaseModel):
     response_model=ResultAllNetScan,
     response_description="All keys is IPv4",
 )
-async def net_scaner(Authorize: AuthJWT = Depends()):
+async def net_scaner(Authorize: AuthJWT = Depends()) -> dict:
     Authorize.jwt_required()
 
     result = pinger_all_network_with_threading.net_scanner()
@@ -60,10 +60,10 @@ async def net_scaner(Authorize: AuthJWT = Depends()):
 
 
 class PushToDb(BaseModel):
-    hard_type: str
+    hard_type: int
     hard_name: str
     hard_ip: str
-    hard_place: str
+    hard_place: int
     hard_comment: str
 
     class Config:
@@ -184,11 +184,11 @@ class ReadHwWithAnyParam(BaseModel):
 
 
 class ReturnHwWithAnyParam(BaseModel):
-    id_in_db: str
-    type: str
+    id_in_db: int
+    type: int
     name: str
     ip: str
-    locate: str
+    locate: int
     comment: str
 
 

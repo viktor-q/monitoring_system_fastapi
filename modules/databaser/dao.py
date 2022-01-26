@@ -9,7 +9,7 @@ from modules.pinger.pinger_all_network_with_threading import net_scanner
 
 # pattern class
 class DAO:
-    def create_hardware_unit_with_comment(self, hard_type, hard_name, hard_ip, hard_place, comment):
+    def create_hardware_unit_with_comment(self, hard_type: int, hard_name: str, hard_ip: str, hard_place: int, comment: str) -> int:
         conn = engine.connect()
         with conn.begin():
             insert_query = hardware.insert().values(
@@ -25,7 +25,7 @@ class DAO:
             conn.execute(insert_query)
         return new_hardware_id
 
-    def read_hardware_with_comment(self, input_id):
+    def read_hardware_with_comment(self, input_id: int) -> dict:
         conn = engine.connect()
         query = (
             select(
@@ -45,7 +45,7 @@ class DAO:
         result = conn.execute(query).first()
         return dict(result)
 
-    def pinger_for_page(self, id):
+    def pinger_for_page(self, id: int) -> str:
         conn = engine.connect()
         query = select([hardware.c.hard_ip]).where(hardware.c.id == id)
         result = conn.execute(query).first().values()
@@ -53,7 +53,7 @@ class DAO:
         result_of_ping = pinger(result[0])
         return result_of_ping
 
-    def update_the_comment(self, id_for_upd, newcomment):
+    def update_the_comment(self, id_for_upd: int, newcomment: str):
         conn = engine.connect()
         query = (
             update(comments).where(comments.c.hardware_id == id_for_upd).values(comment=newcomment)
@@ -61,7 +61,7 @@ class DAO:
         conn.execute(query)
         return {"id_for_update": id_for_upd, "new_comment": newcomment}
 
-    def read_hardware_with_param(self, type_hardware, locate):
+    def read_hardware_with_param(self, type_hardware: int, locate: int) -> dict:
         conn = engine.connect()
         query = select([hardware, comments.c.comment]).where(
             hardware.c.id == comments.c.hardware_id

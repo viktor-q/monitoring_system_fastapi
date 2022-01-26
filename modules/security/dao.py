@@ -3,7 +3,7 @@ from sqlalchemy import select, update
 
 
 class DAO:
-    def create_user_in_db(self, login, hashed_pass):
+    def create_user_in_db(self, login: str, hashed_pass: str) -> int:
         conn = engine.connect()
         with conn.begin():
             insert_query = users.insert().values(login=login, hashed_pass=hashed_pass)
@@ -12,7 +12,7 @@ class DAO:
 
         return new_user_id
 
-    def extract_userdata_from_db(self, login):
+    def extract_userdata_from_db(self, login: str) -> dict:
         conn = engine.connect()
         query = select(
             [

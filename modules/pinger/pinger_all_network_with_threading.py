@@ -9,11 +9,11 @@ with open("modules/pinger/vendors.json", "r") as j:
     vend_base = json.load(j)
 
 
-def net_scanner():
+def net_scanner() -> dict:
     ip_online = []
     ip_and_name = {}
 
-    def all_ip_in_net(ip):
+    def all_ip_in_net(ip: str):
         ipaddr = "192.168.1." + str(ip)
         #        ipaddr = "37.145.189." + str(ip)
         response = os.system("ping -c 1 " + ipaddr)
