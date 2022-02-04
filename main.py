@@ -10,9 +10,20 @@ from pydantic import BaseModel, Field
 from modules.databaser import dao
 from modules.pinger import pinger_all_network_with_threading
 from modules.security import security
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+origins = ["*"]
+
+#search this!11
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def start_page():
@@ -52,8 +63,9 @@ class ResultAllNetScan(BaseModel):
     response_model=ResultAllNetScan,
     response_description="All keys is IPv4",
 )
-async def net_scaner(Authorize: AuthJWT = Depends()) -> dict:
-    Authorize.jwt_required()
+#Authorize: AuthJWT = Depends()
+async def net_scaner() -> dict:
+#    Authorize.jwt_required()
 
     result = pinger_all_network_with_threading.net_scanner()
     return {"items": result}
@@ -224,11 +236,6 @@ async def read_hardware_with_any_param(pushed_json: ReadHwWithAnyParam):
     return {"items": result_read_hw_with_any_param}
 
 
-class User(BaseModel):
-    login: str
-    password: str
-
-
 class Settings(BaseModel):
     authjwt_secret_key: str = "secret"
 
@@ -237,9 +244,19 @@ class Settings(BaseModel):
 def get_config():
     return Settings()
 
+class User(BaseModel):
+    login: str
+    password: str
 
-@app.get("/login-user")
-async def login_user(data: User, Authorize: AuthJWT = Depends()):
+class ReturnLoginUser(BaseModel):
+    access_token: str
+
+    class Config:
+        schema_extra = {"access_token": "blabla123bla456"}
+
+
+@app.get("/login-user", response_model=ReturnLoginUser)
+async def login_user(data: User, Authorize: AuthJWT = Depends()) -> dict:
     new_class = security.CustomSecurity()
     response_check_pass_in_db = new_class.check_user(data.login, data.password)
     if response_check_pass_in_db["status_pass"] == "BAD":
@@ -253,7 +270,7 @@ async def login_user(data: User, Authorize: AuthJWT = Depends()):
 async def create_user(data: User):
     new_class = security.CustomSecurity()
     new_user_id = new_class.registration_new_user(data.login, data.password)
-    return new_user_id
+    return {"new_user_id": new_user_id}
 
 
 # exception handler for authjwt
